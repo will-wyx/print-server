@@ -212,10 +212,13 @@ export default class MenuBuilder {
             label: '打印',
             click: () => {
               const content = this.mainWindow.webContents;
-               content.getPrintersAsync()
-                 .then(res => {
-                   console.log(res);
-                 })
+              content
+                .getPrintersAsync()
+                .then((res: any) => {
+                  console.log(res);
+                  return res;
+                })
+                .catch();
             },
           },
         ],
