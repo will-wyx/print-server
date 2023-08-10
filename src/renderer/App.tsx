@@ -1,41 +1,52 @@
+import { useState } from 'react';
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-import icon from '../../assets/icon.svg';
 import './App.css';
+import {
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Button,
+  Grid,
+} from '@mui/material';
 
 function Hello() {
+  const [age, setAge] = useState('');
+
+  const handleChange = (event: any) => {
+    setAge(event.target.value);
+  };
+
+  const handleRefresh = () => {
+    window.electron.ipcRenderer.sendMessage('print', { foo: 'bar' });
+  };
+
   return (
-    <div>
-      <div className="Hello">
-        <img width="200" alt="icon" src={icon} />
-      </div>
-      <h1>electron-react-boilerplate</h1>
-      <div className="Hello">
-        <a
-          href="https://electron-react-boilerplate.js.org/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            Read our docs
-          </button>
-        </a>
-        <a
-          href="https://github.com/sponsors/electron-react-boilerplate"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="folded hands">
-              🙏
-            </span>
-            Donate
-          </button>
-        </a>
-      </div>
-    </div>
+    <Grid container spacing={2}>
+      <Grid item xs={8}>
+        <FormControl fullWidth size="small">
+          <InputLabel id="demo-simple-select-label">Age</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={age}
+            label="Age"
+            onChange={handleChange}
+          >
+            <MenuItem value={10}>Ten</MenuItem>
+            <MenuItem value={20}>Twenty</MenuItem>
+            <MenuItem value={30}>Thirty</MenuItem>
+          </Select>
+        </FormControl>
+      </Grid>
+      <Grid item xs={4} style={{ display: 'flex', alignItems: 'center' }}>
+        <FormControl>
+          <Button variant="outlined" onClick={handleRefresh}>
+            更新设备
+          </Button>
+        </FormControl>
+      </Grid>
+    </Grid>
   );
 }
 
