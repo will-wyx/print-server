@@ -53,10 +53,9 @@ ipcMain.on('print', async () => {
     });
 });
 
-ipcMain.on('refresh', () => {
-  mainWindow?.webContents.getPrintersAsync().then((res) => {
-    console.log(res);
-  });
+ipcMain.handle('refresh', async () => {
+  const printers = await mainWindow?.webContents.getPrintersAsync();
+  return printers?.map((printer: any) => printer.name);
 });
 
 if (process.env.NODE_ENV === 'production') {
