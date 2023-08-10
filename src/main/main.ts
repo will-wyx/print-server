@@ -14,10 +14,13 @@ import { autoUpdater } from 'electron-updater';
 import { print } from 'pdf-to-printer';
 // @ts-ignore
 import download from 'download';
+import Store from 'electron-store';
 
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+
+const store = new Store();
 
 class AppUpdater {
   constructor() {
@@ -53,9 +56,17 @@ ipcMain.on('print', async () => {
     });
 });
 
+ipcMain.on('change', (e, printer) => {
+  store.set('printer', printer);
+});
+
 ipcMain.handle('refresh', async () => {
+  const printer = store.get('printer');
   const printers = await mainWindow?.webContents.getPrintersAsync();
-  return printers?.map((printer: any) => printer.name);
+  return {
+    printer,
+    printers: printers?.map((item: any) => item.name),
+  };
 });
 
 if (process.env.NODE_ENV === 'production') {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import {
@@ -12,17 +12,21 @@ import {
 
 function Hello() {
   const [printer, setPrinter] = useState('');
-  const [printers, setPrinters] = useState([]);
+  const [printers, setPrinters] = useState<String[]>([]);
 
   const handleChange = (event: any) => {
-    setPrinter(event.target.value);
+    const { value } = event.target;
+    setPrinter(value);
+    window.electron.ipcRenderer.sendMessage('change', value);
   };
 
   const loadPrinters = () => {
     window.electron.ipcRenderer
       .invoke('refresh')
       .then((res: any) => {
-        setPrinters(res);
+        if (res.printer) setPrinter(res.printer);
+        // setPrinters(res.printers);
+        setPrinters(['a', 'b', 'c']);
         return res;
       })
       .catch((e: any) => {
@@ -30,7 +34,9 @@ function Hello() {
       });
   };
 
-  loadPrinters();
+  useEffect(() => {
+    loadPrinters();
+  }, []);
 
   return (
     <Grid container spacing={2}>
@@ -45,7 +51,9 @@ function Hello() {
             onChange={handleChange}
           >
             {printers.map((item: any) => (
-              <MenuItem value={item}>{item}</MenuItem>
+              <MenuItem value={item} key={item}>
+                {item}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
