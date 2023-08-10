@@ -33,7 +33,7 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 
 ipcMain.on('print', () => {
-  print('test.pdf')
+  print(`${__dirname}\\test.pdf`)
     .then((res) => {
       console.log('success', res);
       return res;
