@@ -18,16 +18,19 @@ function Hello() {
     setPrinter(event.target.value);
   };
 
-  const handleRefresh = () => {
+  const loadPrinters = () => {
     window.electron.ipcRenderer
       .invoke('refresh')
-      .then((res: []) => {
+      .then((res: any) => {
         setPrinters(res);
+        return res;
       })
       .catch((e: any) => {
         console.log('err', e);
       });
   };
+
+  loadPrinters();
 
   return (
     <Grid container spacing={2}>
@@ -49,7 +52,7 @@ function Hello() {
       </Grid>
       <Grid item xs={4} style={{ display: 'flex', alignItems: 'center' }}>
         <FormControl>
-          <Button variant="outlined" onClick={handleRefresh}>
+          <Button variant="outlined" onClick={loadPrinters}>
             刷新设备
           </Button>
         </FormControl>
