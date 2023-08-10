@@ -33,9 +33,14 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 
 ipcMain.on('print', () => {
-  print('./test.pdf').then((res) => {
-    console.log('success', res);
-  });
+  print('test.pdf')
+    .then((res) => {
+      console.log('success', res);
+      return res;
+    })
+    .catch((e) => {
+      console.log('err', e);
+    });
 });
 
 if (process.env.NODE_ENV === 'production') {
