@@ -53,6 +53,12 @@ ipcMain.on('print', async () => {
     });
 });
 
+ipcMain.on('refresh', () => {
+  mainWindow?.webContents.getPrintersAsync().then((res) => {
+    console.log(res);
+  });
+});
+
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();

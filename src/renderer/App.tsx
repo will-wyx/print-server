@@ -18,7 +18,7 @@ function Hello() {
   };
 
   const handleRefresh = () => {
-    window.electron.ipcRenderer.sendMessage('print', { foo: 'bar' });
+    window.electron.ipcRenderer.sendMessage('refresh');
   };
 
   return (
