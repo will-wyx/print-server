@@ -12,6 +12,9 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { print } from 'pdf-to-printer';
+// @ts-ignore
+import download from 'download';
+
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
@@ -32,8 +35,15 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-ipcMain.on('print', () => {
-  print(`${__dirname}\\test.pdf`)
+ipcMain.on('print', async () => {
+  await download(
+    'http://211.156.195.16/oss-jd-prd-psc-no-post/orderInfo%2FPDFpicture%2F20230807%2FYYTJDPT%2F4010526853465376-2023-08-07+17%3A38%3A39.000%2Fcf704800-56e5-4332-9871-822d2fa5e0e3.pdf',
+    'files',
+    {
+      filename: 'temp.pdf',
+    }
+  );
+  print(`files\\temp.pdf`)
     .then((res) => {
       console.log('success', res);
       return res;
