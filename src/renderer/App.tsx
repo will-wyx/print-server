@@ -25,8 +25,7 @@ function Hello() {
       .invoke('refresh')
       .then((res: any) => {
         if (res.printer) setPrinter(res.printer);
-        // setPrinters(res.printers);
-        setPrinters(['a', 'b', 'c']);
+        setPrinters(res.printers);
         return res;
       })
       .catch((e: any) => {
