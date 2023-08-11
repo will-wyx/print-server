@@ -1,7 +1,8 @@
 import Koa from 'koa';
 // @ts-ignore
 import Router from '@koa/router';
-import { koaBody } from 'koa-body';
+// import { koaBody } from 'koa-body';
+import bodyParser from 'koa-bodyparser';
 // @ts-ignore
 import download from 'download';
 // @ts-ignore
@@ -13,6 +14,15 @@ const store = new Store();
 
 const koa = new Koa();
 const router = new Router();
+
+router.get('/', (ctx: any) => {
+  ctx.response.type = 'json';
+  ctx.response.body = {
+    success: true,
+    code: 1,
+    message: '成功',
+  };
+});
 
 router.post('/print', async (ctx: any) => {
   const url = ctx.request.body?.url;
@@ -47,7 +57,8 @@ koa
     ctx.set('Access-Control-Allow-Methods', 'OPTIONS, GET, PUT, POST, DELETE');
     await next();
   })
-  .use(koaBody())
+  // .use(koaBody())
+  .use(bodyParser())
   .use(router.routes())
   .use(router.allowedMethods());
 
