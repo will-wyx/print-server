@@ -28,11 +28,20 @@ router.post('/print', async (ctx: any) => {
   const url = ctx.request.body?.url;
 
   const printer = store.get('printer') as string;
+  ctx.response.type = 'json';
   if (printer) {
-    await download(url, 'files', {
-      filename: 'temp.pdf',
-    });
-    ctx.response.type = 'json';
+    try {
+      await download(url, 'files', {
+        filename: 'temp.pdf',
+      });
+    } catch (error) {
+      ctx.response.body = {
+        success: false,
+        code: -2,
+        message: '下载失败',
+        error,
+      };
+    }
     try {
       await print(`files\\temp.pdf`, { printer });
       ctx.response.body = {
@@ -40,13 +49,20 @@ router.post('/print', async (ctx: any) => {
         code: 1,
         message: '成功',
       };
-    } catch (e: any) {
+    } catch (error: any) {
       ctx.response.body = {
         success: false,
         code: -1,
         message: '打印失败',
+        error,
       };
     }
+  } else {
+    ctx.response.body = {
+      success: false,
+      code: -3,
+      message: '未连接打印机',
+    };
   }
 });
 
