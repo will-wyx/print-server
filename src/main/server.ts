@@ -9,11 +9,26 @@ import download from 'download';
 import { print } from 'pdf-to-printer';
 // @ts-ignore
 import Store from 'electron-store';
+import fs from 'fs';
 
 const store = new Store();
 
 const koa = new Koa();
 const router = new Router();
+
+// 清空文件目录
+// eslint-disable-next-line no-use-before-define
+rmdir('files');
+
+function rmdir(path: any) {
+  if (fs.existsSync(path)) {
+    const files = fs.readdirSync(path);
+    files.forEach((file) => {
+      const filename = `${path}/${file}`;
+      fs.unlinkSync(filename);
+    });
+  }
+}
 
 router.get('/', (ctx: any) => {
   ctx.response.type = 'json';
@@ -30,9 +45,12 @@ router.post('/print', async (ctx: any) => {
   const printer = store.get('printer') as string;
   ctx.response.type = 'json';
   if (printer) {
+    // 随机生成文件名
+    // eslint-disable-next-line no-use-before-define
+    const filename = GenNonDuplicateID();
     try {
-      await download(url, 'files', {
-        filename: 'temp.pdf',
+      await download(url, `files`, {
+        filename,
       });
     } catch (error) {
       ctx.response.body = {
@@ -43,7 +61,7 @@ router.post('/print', async (ctx: any) => {
       };
     }
     try {
-      await print(`files\\temp.pdf`, { printer });
+      await print(`files\\${filename}`, { printer });
       ctx.response.body = {
         success: true,
         code: 1,
@@ -65,6 +83,10 @@ router.post('/print', async (ctx: any) => {
     };
   }
 });
+
+function GenNonDuplicateID(): String {
+  return Math.random().toString(36).substr(3);
+}
 
 koa
   .use(async (ctx, next) => {
