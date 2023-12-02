@@ -24,19 +24,19 @@ const store = new Store();
 /**
  * 设置 store 默认值
  */
-(function() {
-  if(!store.has('printer')) {
+(function () {
+  if (!store.has('printer')) {
     store.set('printer', 'Chenxin N80B');
   }
 
-  if(!store.has('openAtLogin')) {
+  if (!store.has('openAtLogin')) {
     store.set('openAtLogin', true);
-    const {openAtLogin} = app.getLoginItemSettings();
-    if(!openAtLogin) {
+    const { openAtLogin } = app.getLoginItemSettings();
+    if (!openAtLogin) {
       app.setLoginItemSettings({ openAtLogin: true });
     }
   }
-})()
+})();
 
 class AppUpdater {
   constructor() {
