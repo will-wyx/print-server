@@ -64,7 +64,7 @@ router.post('/print', async (ctx: any) => {
       await print(`files\\${filename}`, { printer });
       ctx.response.body = {
         success: true,
-        code: 1,
+        code: 0,
         message: '成功',
       };
     } catch (error: any) {
