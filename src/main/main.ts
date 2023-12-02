@@ -9,7 +9,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, Tray, shell, ipcMain, Menu } from 'electron';
 import { autoUpdater } from 'electron-updater';
 // @ts-ignore
 import Store from 'electron-store';
@@ -83,7 +83,39 @@ const createWindow = async () => {
     },
   });
 
+  // const contextMenu: any = Menu.buildFromTemplate([
+  //   {
+  //     label: '显示主窗口',
+  //     id: 'show-window',
+  //     enabled: !mainWindow.show,
+  //     click() {
+  //       mainWindow?.show();
+  //     },
+  //   },
+  //   {
+  //     label: '退出',
+  //     role: 'quit',
+  //   },
+  // ]);
+
+  const tray = new Tray(path.join(__dirname, '../../assets/icon.png'));
+  // tray.setContextMenu(contextMenu);
+  tray.setToolTip('print-server');
+  // 托盘图标被双击
+  tray.on('double-click', () => {
+    // 显示窗口
+    mainWindow?.show();
+  });
+
   mainWindow.loadURL(resolveHtmlPath('index.html'));
+
+  // 窗口最小化
+  mainWindow.on('minimize', (ev: any) => {
+    // 阻止最小化
+    ev.preventDefault();
+    // 隐藏窗口
+    mainWindow?.hide();
+  });
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
