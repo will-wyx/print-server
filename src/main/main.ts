@@ -83,23 +83,17 @@ const createWindow = async () => {
     },
   });
 
-  // const contextMenu: any = Menu.buildFromTemplate([
-  //   {
-  //     label: '显示主窗口',
-  //     id: 'show-window',
-  //     enabled: !mainWindow.show,
-  //     click() {
-  //       mainWindow?.show();
-  //     },
-  //   },
-  //   {
-  //     label: '退出',
-  //     role: 'quit',
-  //   },
-  // ]);
+  const contextMenu: any = Menu.buildFromTemplate([
+    {
+      label: '退出',
+      click: () => {
+        app.exit();
+      },
+    },
+  ]);
 
   const tray = new Tray(path.join(__dirname, '../../assets/icon.png'));
-  // tray.setContextMenu(contextMenu);
+  tray.setContextMenu(contextMenu);
   tray.setToolTip('print-server');
   // 托盘图标被双击
   tray.on('double-click', () => {
@@ -108,6 +102,14 @@ const createWindow = async () => {
   });
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
+  mainWindow.hide();
+
+  mainWindow.on('close', (ev: any) => {
+    // 阻止最小化
+    ev.preventDefault();
+    // 隐藏窗口
+    mainWindow?.hide();
+  });
 
   // 窗口最小化
   mainWindow.on('minimize', (ev: any) => {
@@ -170,3 +172,5 @@ app
     });
   })
   .catch(console.log);
+
+app.setLoginItemSettings({ openAtLogin: true });
