@@ -21,6 +21,23 @@ import koa from './server';
 
 const store = new Store();
 
+/**
+ * 设置 store 默认值
+ */
+(function() {
+  if(!store.has('printer')) {
+    store.set('printer', 'Chenxin N80B');
+  }
+
+  if(!store.has('openAtLogin')) {
+    store.set('openAtLogin', true);
+    const {openAtLogin} = app.getLoginItemSettings();
+    if(!openAtLogin) {
+      app.setLoginItemSettings({ openAtLogin: true });
+    }
+  }
+})()
+
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
@@ -37,15 +54,23 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
+ipcMain.on('changeLoginOpen', (e, openAtLogin) => {
+  console.log('changeLoginOpen', openAtLogin);
+  store.set('openAtLogin', openAtLogin);
+  app.setLoginItemSettings({ openAtLogin });
+});
+
 ipcMain.on('change', (e, printer) => {
   store.set('printer', printer);
 });
 
 ipcMain.handle('refresh', async () => {
   const printer = store.get('printer');
+  const openAtLogin = store.get('openAtLogin');
   const printers = await mainWindow?.webContents.getPrintersAsync();
   return {
     printer,
+    openAtLogin,
     printers: printers?.map((item: any) => item.name),
   };
 });
@@ -92,7 +117,7 @@ const createWindow = async () => {
     },
   ]);
 
-  const tray = new Tray(path.join(__dirname, '../../assets/icon.png'));
+  const tray = new Tray(getAssetPath('icon.png'));
   tray.setContextMenu(contextMenu);
   tray.setToolTip('print-server');
   // 托盘图标被双击
@@ -172,5 +197,3 @@ app
     });
   })
   .catch(console.log);
-
-app.setLoginItemSettings({ openAtLogin: true });
