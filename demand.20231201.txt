@@ -1,0 +1,24 @@
+1 接口参数变更为数组
+  fetch('http://127.0.0.1:38250/print/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ url: [url1, url2, url3] })
+  })
+2 接口正常返回值设定为 0
+  {
+    success: true,
+    code: 0,
+    message: '成功',
+  }
+3 开机自启动，最小化到托盘，双击可打开设置，初始化连接名称为 "Chenxin N80B" 的打印机
+4 提供服务启动状态检测接口
+  fetch('http://127.0.0.1:38250/', {method: 'GET'})
+  正常状态返回
+  {
+    "success": true,
+    "code": 0,
+    "message": "成功"
+  }
+  否则网络请求连接失败
