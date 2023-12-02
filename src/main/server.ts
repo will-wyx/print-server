@@ -34,7 +34,7 @@ router.get('/', (ctx: any) => {
   ctx.response.type = 'json';
   ctx.response.body = {
     success: true,
-    code: 1,
+    code: 0,
     message: '成功',
   };
 });
