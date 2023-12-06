@@ -39,7 +39,7 @@ router.get('/', (ctx: any) => {
   };
 });
 
-router.post('/printOne', async (ctx: any) => {
+router.post('/print', async (ctx: any) => {
   const url = ctx.request.body?.url;
 
   const printer = store.get('printer') as string;
@@ -112,7 +112,7 @@ async function downloadAndPrint(url: string, printer: string) {
   return { url, code: 0 };
 }
 
-router.post('/print', async (ctx: any) => {
+router.post('/printMulti', async (ctx: any) => {
   const urls = ctx.request.body?.url;
 
   const printer = store.get('printer') as string;
