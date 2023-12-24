@@ -10,6 +10,7 @@ import { print } from "pdf-to-printer";
 // @ts-ignore
 import Store from "electron-store";
 import fs from "fs";
+import child_process from "child_process";
 
 const store = new Store();
 
@@ -60,6 +61,7 @@ router.post("/print", async (ctx: any) => {
         error
       };
     }
+    await waitPrinter(printer); // 等待打印机状态
     try {
       await print(`files\\${filename}`, { printer });
       ctx.response.body = {
@@ -112,12 +114,49 @@ async function downloadAndPrint(url: string, printer: string) {
   return { url, code: 0 };
 }
 
+/**
+ * 打印所有任务
+ * @param urls
+ * @param printer
+ */
 async function printAll(urls: string[], printer: string) {
   const data = [];
   for (let i = 0; i < urls.length; i++) {
+    await waitPrinter(printer); // 等待打印机状态
     data.push(await downloadAndPrint(urls[i], printer));
   }
   return data;
+}
+
+/**
+ * 检查打印机是否在可打印状态
+ * @param printer
+ */
+function checkPrinterStatus(printer: string) {
+  const stdout = child_process.execSync(`wmic printer where name="${printer}" get status`, { encoding: "utf-8" });
+  return stdout.indexOf("Unknown") >= 0;
+}
+
+/**
+ * 延迟
+ * @param ms
+ */
+function delay(ms: number) {
+  return new Promise(resolve =>
+    setTimeout(() => resolve(true), ms)
+  );
+}
+
+/**
+ * 等待打印机状态恢复
+ * @param printer
+ */
+async function waitPrinter(printer: string) {
+  let status = false;
+  do {
+    status = checkPrinterStatus(printer);
+    await delay(500);
+  } while (!status);
 }
 
 router.post("/printMulti", async (ctx: any) => {
