@@ -101,33 +101,35 @@ router.post('/print', async (ctx: any) => {
  * 下载并打印
  * @param url
  * @param printer
+ * @param index
  */
-async function downloadAndPrint(url: string, printer: string) {
+async function downloadAndPrint(url: string, printer: string, index: number) {
+  logger.info(`打印开始 [${index}] ${url}`);
   // 随机生成文件名
   // eslint-disable-next-line no-use-before-define
   const filename = GenNonDuplicateID();
   try {
-    logger.info(`下载中... ${url}`);
+    logger.info(`下载中... [${index}]`);
     await download(url, `files`, {
       filename,
     });
   } catch (error) {
     // 下载失败
-    logger.info(`下载失败 ${url}`);
+    logger.info(`下载失败 [${index}]`);
     return { url, code: -2 };
   }
-  logger.info(`下载完成 ${url}`);
+  logger.info(`下载完成 [${index}]`);
 
   try {
-    logger.info(`打印中... ${url}`);
+    logger.info(`打印中... [${index}]`);
     await print(`files\\${filename}`, { printer });
   } catch (error) {
     // 打印失败
-    logger.info(`打印失败 ${url}`);
+    logger.info(`打印失败 [${index}]`);
     return { url, code: -1 };
   }
 
-  logger.info(`打印完成 ${url}`);
+  logger.info(`打印完成 [${index}]`);
   return { url, code: 0 };
 }
 
@@ -141,7 +143,7 @@ async function printAll(urls: string[], printer: string) {
   const data = [];
   for (let i = 0; i < urls.length; i++) {
     await waitPrinter(printer); // 等待打印机状态
-    data.push(await downloadAndPrint(urls[i], printer));
+    data.push(await downloadAndPrint(urls[i], printer, i));
   }
   logger.info(`批量打印完成`);
   return data;
@@ -152,11 +154,11 @@ async function printAll(urls: string[], printer: string) {
  * @param printer
  */
 function checkPrinterStatus(printer: string) {
-  const stdout = child_process.execSync(
-    `wmic printer where name="${printer}" get status`,
+  const printerState = child_process.execSync(
+    `wmic printer where name="${printer}" get WorkOffline, PrinterState`,
     { encoding: 'utf-8' }
   );
-  return stdout.indexOf('Unknown') >= 0;
+  return printerState.indexOf('0             FALSE') >= 0;
 }
 
 /**
@@ -176,7 +178,7 @@ async function waitPrinter(printer: string) {
   let status = false;
   do {
     status = checkPrinterStatus(printer);
-    await delay(100);
+    await delay(500);
   } while (!status);
   logger.info('打印队列已清空');
 }
