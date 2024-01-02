@@ -18,6 +18,7 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import koa from './server';
+import logger from './logger';
 
 const store = new Store();
 
@@ -26,15 +27,24 @@ const store = new Store();
  */
 (function () {
   if (!store.has('printer')) {
-    store.set('printer', 'Chenxin N80B');
+    const printer = 'Chenxin N80B';
+    store.set('printer', printer);
+    logger.info(`store.printer 设置默认打印机 ${printer}`);
+  } else {
+    const printer = store.get('printer');
+    logger.info(`store.printer 当前打印机 ${printer}`);
   }
 
   if (!store.has('openAtLogin')) {
     store.set('openAtLogin', true);
+    logger.info(`store.openAtLogin 设置开机启动 ${true}`);
     const { openAtLogin } = app.getLoginItemSettings();
     if (!openAtLogin) {
       app.setLoginItemSettings({ openAtLogin: true });
     }
+  } else {
+    const openAtLogin = store.get('openAtLogin');
+    logger.info(`store.openAtLogin 当前开机启动 ${openAtLogin}`);
   }
 })();
 
@@ -55,13 +65,14 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 
 ipcMain.on('changeLoginOpen', (e, openAtLogin) => {
-  console.log('changeLoginOpen', openAtLogin);
   store.set('openAtLogin', openAtLogin);
+  logger.info(`store.openAtLogin 设置开机启动 ${openAtLogin}`);
   app.setLoginItemSettings({ openAtLogin });
 });
 
 ipcMain.on('change', (e, printer) => {
   store.set('printer', printer);
+  logger.info(`store.printer 设置默认打印机 ${printer}`);
 });
 
 ipcMain.handle('refresh', async () => {
@@ -172,6 +183,7 @@ const createWindow = async () => {
   // eslint-disable-next-line
   new AppUpdater();
   koa.listen(38250);
+  logger.info('服务启动');
 };
 
 /**
